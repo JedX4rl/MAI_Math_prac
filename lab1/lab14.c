@@ -12,7 +12,12 @@ typedef enum
 }Status;
 
 Status flag_checker(int argc, char* argv[])
-{
+{   
+    if (argc < 3)
+    {
+        return INVALID_INPUT;
+    }
+
     if (*argv[1] != '-' && *argv[1] != '/')
     {
         return INVALID_INPUT;
@@ -134,12 +139,17 @@ Status flag_s(FILE* file_in, FILE* file_out)
     }
 
     char ch;
-    int counter = 0;
+    double counter = 0;
     while ((ch = fgetc(file_in)) != EOF)
     {
-        if (!isdigit(ch) && !isalpha(ch) && ch != ' ' && ch != '\n')
+        
+        if (!isdigit(ch) && !isalpha(ch) && ch != ' ' && ch != '\n' && ch >= 0)
         {
             counter++;
+        }
+        if (ch < 0)
+        {
+            counter += 0.5;
         }
         if (ch == '\n')
         {
@@ -182,6 +192,11 @@ Status flag_a(FILE* file_in, FILE* file_out)
 int main(int argc, char* argv[])
 {
     Status flag = flag_checker(argc, argv);
+    if (flag == INVALID_INPUT)
+    {
+        printf("Invalid input, check the amount of entered arguments\n");
+        return INVALID_INPUT;
+    }
     char* filename_in = argv[2];
     if (filename_checker(filename_in) == INVALID_INPUT)
         {
