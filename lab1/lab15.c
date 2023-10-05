@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <float.h>
 
 
 typedef enum
@@ -175,6 +176,11 @@ int main(int argc, char* argv[])
     }
     int length = strlen(argv[1]) - 2;
     double eps = char_to_double(argv[1]);
+    if (fabs(eps) <= 0)
+    {
+        printf("Eps must be greater than 0\n");
+        return INVALID_INPUT;
+    }
     double x = char_to_double(argv[2]);
     printf("eps = %.*f\n", length, eps);
     printf("%.*f\n", length, a_sum(eps, x));
