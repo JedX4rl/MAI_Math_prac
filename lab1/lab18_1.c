@@ -228,15 +228,23 @@ int main(int argc, char* argv[])
         fclose(file_in);
         return NOT_OK;
     }
-
-    if (file_processing(file_in, file_out) != OK)
-    {
-        printf("Something went wrong, check data \n");
+    Status checker = file_processing(file_in, file_out);
+    if (checker != OK)
+    {   
         fclose(file_in);
         fclose(file_out);
-        file_out = fopen(argv[2], "w");
-        fclose(file_out);
-        return INVALID_INPUT;
+        switch (checker)
+        {
+        case OVERFLOWED:
+            printf("Overflow\n");
+            return OVERFLOWED;
+        case INVALID_INPUT:
+            printf ("Invalid input\n");
+            return INVALID_INPUT;
+        default:
+            printf("Something went wrong, check data \n");
+            return NOT_OK;
+        }
     }
 
     fclose(file_in);

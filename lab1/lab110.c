@@ -109,13 +109,11 @@ Status get_max_number(long long base, long long* result, char** answer)
 {
     int size = 0;
     char* str = NULL;
-    char* ending;
     char* max_string;
     long long current_number = -1;
     long long max_number = 0;
-
     while (end(str) != OK)
-    { 
+    {   
         if (get_string(&str) != OK)
         {
             free(str);
@@ -133,8 +131,11 @@ Status get_max_number(long long base, long long* result, char** answer)
         }
         
     }
-    *result = max_number;
-    *answer = max_string;
+    if (end(max_string) != OK)
+    {
+        *result = max_number;
+        *answer = max_string;
+    }
     free(str);
     return OK;
 }
@@ -237,13 +238,19 @@ int main()
         printf("The base must be [2..36]\n");
         return INVALID_INPUT;
     }
+    getchar();
     long long result;
-    char* max_str;
+    char* max_str = NULL;
     printf ("Enter the numbers, then enter: Stop\n");
     if (get_max_number(base, &result, &max_str) != OK)
     {
-        printf("Invalid input, check entered data, letter must be in uppercase\n");
+        printf("Invalid input, check entered data\n");
         return INVALID_INPUT;
+    }
+    if (max_str == NULL)
+    {
+        printf("No numbers found, USER IS INVALID\n");
+        return OK;
     }
     if (without_zeros(&max_str, strlen(max_str)) != OK)
     {
@@ -253,10 +260,10 @@ int main()
     }
     printf("The max number is: ");
     printf("%s\n", max_str);
-    char str_9[60];
-    char str_18[60];
-    char str_27[60];
-    char str_36[60];
+    char str_9[66];
+    char str_18[66];
+    char str_27[66];
+    char str_36[66];
 
     convert(result, 9, str_9);
     convert(result, 18, str_18);
