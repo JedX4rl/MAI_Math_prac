@@ -4,6 +4,12 @@
 #include <string.h>
 #include <limits.h>
 
+void Usage()
+{
+    printf("Program for making some magic with files\n");
+    printf("Enter filename1.txt fileout.txt\n");
+}
+
 typedef enum
 {
     OK,
@@ -194,6 +200,8 @@ Status file_processing(FILE* file_in, FILE* file_out)
 
 int main(int argc, char* argv[])
 {
+    Usage();
+    
     if (argc != 3)
     {
         printf("Invalid input, check the amount of entered arguments\n");
