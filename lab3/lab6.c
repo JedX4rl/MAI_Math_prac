@@ -582,9 +582,10 @@ Status free_buses(Bus* buses)
     while (current != NULL)
     {
         Bus* tmp = current;
+        current = current->next;
         free_routes(tmp->routes);
-        free(current);
-        current = tmp;
+        free(tmp);
+
     }
     return OK;
 }
@@ -1098,7 +1099,7 @@ int main(int argc, char* argv[])
                 st = get_str(&file_name_out);
                 if (!st)
                 {
-                    print_buses(list_of_buses, file_name_out);
+                    st = print_buses(list_of_buses, file_name_out);
                 }
                 free(file_name_out);
             }
