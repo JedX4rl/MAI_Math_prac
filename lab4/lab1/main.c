@@ -24,7 +24,6 @@ Status file_processing(FILE* in)
     {
         return INVALID_INPUT;
     }
-//    FILE* out = tmpfile();
     FILE* out = fopen("/Users/nikitatretakov/Uni/Labs/MathPracticum/Laboratory_work4/lab1_2/out.txt", "w");
     if (out == NULL)
     {
@@ -55,7 +54,7 @@ Status file_processing(FILE* in)
             return BAD_ALLOC;
         }
         int length = (int)strlen(curr_line);
-        char* key = (char*)malloc(sizeof(char*) * (length + 1));
+        char* key = (char*)malloc(sizeof(char*) * length);
         if (key == NULL)
         {
             fclose(in);
@@ -65,7 +64,7 @@ Status file_processing(FILE* in)
             destruct_cache(cache);
             return BAD_ALLOC;
         }
-        char* value = (char*)malloc(sizeof(char*) * (length + 1));
+        char* value = (char*)malloc(sizeof(char*) * length);
         if (value == NULL)
         {
             fclose(in);
@@ -76,7 +75,7 @@ Status file_processing(FILE* in)
             destruct_cache(cache);
             return BAD_ALLOC;
         }
-        if (sscanf(curr_line, "#define %s %s", key, value) != 2)
+        if (sscanf(curr_line, "#define %s %[^\n]", key, value) != 2)
         {
             if (!strcmp(curr_line, "\n") || !strcmp(curr_line, "\0"))
             {
@@ -173,11 +172,13 @@ Status file_processing(FILE* in)
                 char* word_to_replace = find_value(h_table, curr_word);
                 if (word_to_replace == NULL)
                 {
-                    fprintf(out, "%s%c", curr_word, ch);
+                    fprintf(out, "%s", curr_word);
+                    fprintf(out, "%c", ch);
                 }
                 else
                 {
-                    fprintf(out, "%s%c", word_to_replace, ch);
+                    fprintf(out, "%s", word_to_replace);
+                    fprintf(out, "%c", ch);
                 }
                 free(curr_word);
                 curr_word = NULL;
@@ -207,15 +208,13 @@ Status file_processing(FILE* in)
         char* word_to_replace = find_value(h_table, curr_word);
         if (word_to_replace == NULL)
         {
-            fprintf(out, "%s%c", curr_word, ch);
+            fprintf(out, "%s", curr_word);
+
         }
         else
         {
-            fprintf(out, "%s%c", word_to_replace, ch);
+            fprintf(out, "%s", word_to_replace);
         }
-        free(word_to_replace);
-        free(curr_word);
-        curr_word = NULL;
         success = 0;
     }
     if (curr_word)

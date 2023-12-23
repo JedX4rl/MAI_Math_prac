@@ -62,7 +62,7 @@ Status add_cache_node(Cache_ptr* head, char** key, ull value)
 
 void destruct_cache(Cache_ptr list)
 {
-    if (list == NULL)
+    if (list == NULL || list->key == NULL)
     {
         return;
     }
