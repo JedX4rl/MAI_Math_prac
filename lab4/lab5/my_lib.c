@@ -67,7 +67,7 @@ void errors(Status status)
         case END_OF_FILE:
             printf("End of file\n");
             return;
-        case INVALID_BRACES_ORDER:
+        case INVALID_BRACKETS_ORDER:
             printf("Invalid braces order\n");
             return;
         case DIVISION_BY_ZERO:

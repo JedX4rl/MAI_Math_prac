@@ -3,69 +3,49 @@
 //
 
 #include "deque.h"
-Status null_deque(Deque* deque)
+Status null_stack(Stack* stack)
 {
-    if (deque == NULL)
+    if (stack == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    deque->size = 0;
-    deque->beginning = deque->end = NULL;
+    stack->size = 0;
+    stack->beginning = stack->end = NULL;
     return OK;
 }
 
-void next_iterator(iterator* curr)
+iterator end(Stack stack)
 {
-    curr->node = curr->node->next;
+    return (iterator) {stack.end};
 }
 
-void prev_iterator(iterator* curr)
+Status create_stack(Stack* stack)
 {
-    curr->node = curr->node->prev;
-}
-
-iterator beginning(Deque deque)
-{
-    return (iterator) {deque.beginning};
-}
-
-iterator end(Deque deque)
-{
-    return (iterator) {deque.end};
-}
-
-int equal(iterator a, iterator b)
-{
-    return a.node == b.node;
-}
-
-Status create_deque(Deque* deque)
-{
-    if (deque == NULL)
+    if (stack == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    Node_ptr terminator = (Node_ptr)malloc(sizeof(deque_node));
-    if (terminator == NULL)
+    Node_ptr node = (Node_ptr)malloc(sizeof(stack_node));
+    if (node == NULL)
     {
         return BAD_ALLOC;
     }
-    terminator->content = NONE;
-    terminator->prev = terminator->next = NULL;
-    terminator->data = NULL;
-    deque->beginning = deque->end = terminator;
-    deque->size = 0;
+    node->data = NULL;
+    node->content = NONE;
+    stack->beginning = node;
+    stack->end = node;
+    stack->size = 0;
     return OK;
 }
 
-void destruct_deque(Deque* deque)
+void destruct_stack(Stack* stack)
 {
-    if (deque == NULL)
+    if (stack == NULL)
     {
         return;
     }
-    Node_ptr node = deque->beginning;
-    while (node != deque->end)
+    Node_ptr node = stack->beginning;
+    while (node != NULL)
     {
         Node_ptr tmp = node;
         node = node->next;
@@ -73,184 +53,122 @@ void destruct_deque(Deque* deque)
         free(tmp);
     }
     free(node);
-    deque->beginning = deque->end = NULL;
-    deque->size = 0;
+    stack->beginning = stack->end = NULL;
+    stack->size = 0;
 
 }
 
-Status empty(Deque* deque)
-{
-    if (deque == NULL)
-    {
-        return INVALID_ARGUMENT;
-    }
-    return deque->size ? 0 : 1;
-}
 
-Status first_item(Deque deque, n_content* content, void** data)
+Status last_item(Stack stack, n_content* content, void** data)
 {
     if (data == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    if (content)
+    if (content && stack.end)
     {
-        *content = deque.beginning->content;
+        *content = stack.end->content;
     }
-    if (data)
+    if (data != NULL && stack.end)
     {
-        *data =deque.beginning->data;
+        *data = stack.end->data;
     }
-    return OK;
-}
-
-Status last_item(Deque deque, n_content* content, void** data)
-{
-    if (data == NULL)
+    if (!stack.end)
     {
-        return INVALID_ARGUMENT;
-    }
-    if (content)
-    {
-        *content = deque.end->prev->content;
-    }
-    if (data != NULL && deque.end->prev)
-    {
-        *data = deque.end->prev->data;
+        *data = NULL;
     }
     return OK;
 }
 
-Status push_front(Deque* deque, n_content content, void* data)
+Status push_back(Stack* stack, n_content content, void* data)
 {
-    if (deque == NULL)
+    if (stack == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    Node_ptr new_node = (Node_ptr)malloc(sizeof(deque_node));
+    Node_ptr new_node = (Node_ptr)malloc(sizeof(stack_node));
     if (new_node == NULL)
     {
         return BAD_ALLOC;
     }
+    new_node->next = NULL;
     new_node->content = content;
     new_node->data = data;
-    new_node->next = deque->beginning;
-    new_node->prev = deque->end;
-    deque->beginning = new_node;
-    deque->size++;
-    return OK;
-}
-
-Status push_back(Deque* deque, n_content content, void* data)
-{
-    if (deque == NULL)
+    if (stack->size == 0)
     {
-        return INVALID_ARGUMENT;
-    }
-    Node_ptr new_node = (Node_ptr)malloc(sizeof(deque_node));
-    if (new_node == NULL)
-    {
-        return BAD_ALLOC;
-    }
-    new_node->content = content;
-    new_node->data = data;
-    new_node->next = deque->end;
-    new_node->prev = deque->end->prev;
-    if (deque->size == 0)
-    {
-        deque->beginning = new_node;
+        stack->beginning = new_node;
     }
     else
     {
-        deque->end->prev->next = new_node;
+        stack->end->next = new_node;
     }
-    deque->end->prev = new_node;
-    deque->size++;
+    stack->end = new_node;
+    stack->size++;
     return OK;
 }
 
-Status pop_front(Deque* deque, n_content* content, void** data)
+
+Status pop_back(Stack* stack, n_content* content, void** data)
 {
-    if (deque == NULL)
+    if (stack == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    if (deque->beginning == deque->end)
+    if (stack->size == 0)
     {
         return INVALID_ARGUMENT;
     }
     if (content)
     {
-        *content = deque->beginning->content;
+        *content = stack->end->content;
     }
     if (data)
     {
-        *data = deque->beginning->data;
+        *data = stack->end->data;
     }
-    Node_ptr tmp = deque->beginning;
-    deque->beginning = deque->beginning->next;
-    deque->size--;
-    free(tmp);
-    return OK;
-}
-
-Status pop_back(Deque* deque, n_content* content, void** data)
-{
-    if (deque == NULL)
+    Node_ptr tmp = stack->beginning;
+    if (tmp == stack->end)
     {
-        return INVALID_ARGUMENT;
-    }
-    if (deque->beginning == deque->end)
-    {
-        return INVALID_ARGUMENT;
-    }
-    if (content)
-    {
-        *content = deque->end->prev->content;
-    }
-    if (data)
-    {
-        *data = deque->end->prev->data;
-    }
-    Node_ptr tmp = deque->end->prev;
-    if (tmp == deque->beginning)
-    {
-        deque->beginning = deque->end;
-        deque->end->prev = deque->end->prev->next;
+        stack->beginning = stack->end = NULL;
     }
     else
     {
-        deque->end->prev->prev->next = deque->end;
-        deque->end->prev = deque->end->prev->prev;
+        while (tmp->next->next != NULL)
+        {
+            tmp = tmp->next;
+        }
+        Node_ptr last = tmp->next;
+        tmp->next = NULL;
+        stack->end = tmp;
+        free(last);
+
     }
-    deque->size--;
-    free(tmp);
+    stack->size--;
     return OK;
 }
 
-void print_deque(Deque deque)
+void print_stack(Stack stack)
 {
-    if (deque.beginning == NULL)
+    if (stack.beginning == NULL)
     {
         return;
     }
-    iterator current = beginning(deque);
-    iterator last = end(deque);
-    while (!equal(current, last))
+    Node_ptr current = stack.beginning;
+    while (current != NULL)
     {
-        if (current.node->content == CONST)
+        if (current->content == CONST)
         {
-            printf("%lld ", *((ll*)current.node->data));
+            printf("%lld ", *((ll*)current->data));
         }
-        else if (current.node->content == OPERATION)
+        else if (current->content == OPERATION)
         {
-            printf("%c ", *((char*)current.node->data));
+            printf("%c ", *((char*)current->data));
         }
         else
         {
             return;
         }
-        next_iterator(&current);
+        current = current->next;
     }
 }
 
@@ -406,17 +324,17 @@ Status token_is_valid(n_content prev, n_content curr)
     return OK;
 }
 
-Status convert_to_postfix(const char* infix, Deque* postfix)
+Status convert_to_postfix(const char* infix, Stack * postfix)
 {
     if (infix == NULL || postfix == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    Deque expression, operations;
-    null_deque(&expression);
-    null_deque(&operations);
-    Status st = create_deque(&expression);
-    st = st ? st : create_deque(&operations);
+    Stack expression, operations;
+    null_stack(&expression);
+    null_stack(&operations);
+    Status st = create_stack(&expression);
+    st = st ? st : create_stack(&operations);
     n_content prev = NONE;
     const char* ptr = infix;
     while (!st && *ptr)
@@ -461,13 +379,13 @@ Status convert_to_postfix(const char* infix, Deque* postfix)
             n_content another = NONE;
             void* another_data = NULL;
             last_item(operations, &another, &another_data);
-            st = another != NONE ? OK : INVALID_ARGUMENT;
+            st = another != NONE ? OK : INVALID_BRACKETS_ORDER;
             while (!st && another != L_BRACKET)
             {
                 st = push_back(&expression, OPERATION, another_data);
                 st = st ? st : pop_back(&operations, NULL, NULL);
                 last_item(operations, &another, &another_data);
-                st = st ? st :(another != NONE ? OK : INVALID_ARGUMENT);
+                st = st ? st :(another != NONE ? OK : INVALID_BRACKETS_ORDER);
             }
             another_data = NULL;
             st = st ? st : pop_back(&operations, NULL, &another_data);
@@ -480,13 +398,13 @@ Status convert_to_postfix(const char* infix, Deque* postfix)
         n_content curr = NONE;
         void* data = NULL;
         st = pop_back(&operations, &curr, &data);
-        st = st ? st : (curr != L_BRACKET ? OK : INVALID_INPUT);
+        st = st ? st : (curr != L_BRACKET ? OK : INVALID_BRACKETS_ORDER);
         st = st ? st : push_back(&expression, OPERATION, data);
     }
-    destruct_deque(&operations);
+    destruct_stack(&operations);
     if (st)
     {
-        destruct_deque(&expression);
+        destruct_stack(&expression);
         return st;
     }
     *postfix = expression;
@@ -517,7 +435,7 @@ Status calculate_operation(char operation, ll a, ll b, ll* res)
         }
         case '-':
         {
-            if ((a > LLONG_MAX + b) || (a < LLONG_MIN + b))
+            if ((a - b > LLONG_MAX) || (a < LLONG_MIN + b))
             {
                 return OVERFLOWED;
             }
@@ -538,7 +456,7 @@ Status calculate_operation(char operation, ll a, ll b, ll* res)
         {
             if (b == 0)
             {
-                return INVALID_INPUT;
+                return DIVISION_BY_ZERO;
             }
             *res = a / b;
             return OK;
@@ -547,7 +465,7 @@ Status calculate_operation(char operation, ll a, ll b, ll* res)
         {
             if (b == 0)
             {
-                return INVALID_INPUT;
+                return DIVISION_BY_ZERO;
             }
             *res = a % b;
             return OK;
@@ -561,34 +479,33 @@ Status calculate_operation(char operation, ll a, ll b, ll* res)
     }
 }
 
-Status calculate_postfix(Deque postfix, ll* result)
+Status calculate_postfix(Stack postfix, ll* result)
 {
     if (result == NULL)
     {
         return INVALID_ARGUMENT;
     }
-    Deque args;
-    null_deque(&args);
-    Status st = create_deque(&args);
+    Stack args;
+    null_stack(&args);
+    Status st = create_stack(&args);
 
-    iterator curr = beginning(postfix);
-    iterator last = end(postfix);
+    Node_ptr curr = postfix.beginning;
 
-    while (!equal(curr, last) && !st)
+    while (curr != NULL && !st)
     {
-        if (curr.node->content == CONST)
+        if (curr->content == CONST)
         {
             ll* data = (ll*)malloc(sizeof(ll));
             st = data ? OK : BAD_ALLOC;
             if (!st)
             {
-                *data = *((ll*)curr.node->data);
+                *data = *((ll*)curr->data);
                 st = push_back(&args, CONST, data);
             }
         }
-        else if (curr.node->content == OPERATION)
+        else if (curr->content == OPERATION)
         {
-            char* operation = (char*)curr.node->data;
+            char* operation = (char*)curr->data;
             void* a = NULL;
             void* b = NULL;
             ll* tmp = (ll*)malloc(sizeof(ll));
@@ -608,7 +525,7 @@ Status calculate_postfix(Deque postfix, ll* result)
         {
             st = INVALID_INPUT;
         }
-        next_iterator(&curr);
+        curr = curr->next;
     }
     void *tmp = NULL;
     if (!st)
@@ -616,7 +533,7 @@ Status calculate_postfix(Deque postfix, ll* result)
         st = args.size == 1 ? OK : INVALID_INPUT;
         st = st ? st : pop_back(&args, NULL, &tmp);
     }
-    destruct_deque(&args);
+    destruct_stack(&args);
     if (st)
     {
         return st;

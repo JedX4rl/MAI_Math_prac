@@ -14,50 +14,44 @@ typedef enum n_content
     R_BRACKET
 } n_content;
 
-typedef struct deque_node
+typedef struct stack_node
 {
     n_content content;
     void* data;
-    struct deque_node* prev;
-    struct deque_node* next;
-} deque_node, *Node_ptr;
+    struct stack_node* next;
+} stack_node, *Node_ptr;
 
 typedef struct iterator
 {
     Node_ptr node;
 } iterator;
 
-typedef struct Deque
+typedef struct Stack
 {
     Node_ptr beginning;
     Node_ptr end;
     ull size;
-} Deque;
+} Stack;
+
 
 typedef struct expression_data
 {
     Status is_valid;
     char* infix;
-    Deque postfix;
+    Stack postfix;
     ll result;
 } expression_data;
 
 
-Status null_deque(Deque* deque);
-void next_iterator(iterator* curr);
-void prev_iterator(iterator* curr);
-iterator beginning(Deque deque);
-iterator end(Deque deque);
-int equal(iterator a, iterator b);
-Status create_deque(Deque* deque);
-void destruct_deque(Deque* deque);
-Status empty(Deque* deque);
-Status first_item(Deque deque, n_content* content, void** data);
-Status last_item(Deque deque, n_content* content, void** data);
-Status push_back(Deque* deque, n_content content, void* data);
-Status pop_back(Deque* deque, n_content* content, void** data);
-void print_deque(Deque deque);
-Status convert_to_postfix(const char* infix, Deque* postfix);
-Status calculate_postfix(Deque postfix, ll* result);
+Status null_stack(Stack* stack);
+iterator end(Stack stack);
+Status create_stack(Stack* stack);
+void destruct_stack(Stack* stack);
+Status last_item(Stack stack, n_content* content, void** data);
+Status push_back(Stack* stack, n_content content, void* data);
+Status pop_back(Stack* stack, n_content* content, void** data);
+void print_stack(Stack stack);
+Status convert_to_postfix(const char* infix, Stack* postfix);
+Status calculate_postfix(Stack postfix, ll* result);
 
 #endif //LAB5_DEQUE_H
